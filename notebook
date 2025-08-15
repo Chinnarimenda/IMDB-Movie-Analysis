@@ -1,0 +1,159 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Youtube Video Link : https://youtu.be/Asm2_qgBK48
+In [ ]:	
+import warnings
+warnings.filterwarnings('ignore')
+In [ ]:	
+data = pd.read_csv('/kaggle/input/imdb-data/IMDB-Movie-Data.csv')
+1. Display Top 10 Rows of The Dataset
+In [ ]:	
+data.head(10)
+2. Check Last 10 Rows of The Dataset
+In [ ]:	
+data.tail(10)
+3. Find Shape of Our Dataset (Number of Rows And Number of Columns)
+In [ ]:	
+data.shape
+In [ ]:	
+print('Number of Rows',data.shape[0])
+print('Number of Columns',data.shape[1])
+4. Getting Information About Our Dataset Like Total Number Rows, Total Number of Columns, Datatypes of Each Column And Memory Requirement
+In [ ]:	
+data.info()
+5. Check Null Values In The Dataset
+In [ ]:	
+data.isnull().sum()
+In [ ]:	
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.heatmap(data.isnull())
+plt.show()
+6. Drop All The Missing Values
+In [ ]:	
+data = data.dropna(axis=0)
+In [ ]:	
+sns.heatmap(data.isnull())
+plt.show()
+7. Check For Duplicate Data
+In [ ]:	
+dup_data=data.duplicated().any()
+print("Are there any duplicated values in data?",dup_data)
+8. Get Overall Statistics About The DataFrame
+In [ ]:	
+data.describe()
+9. Display Title of The Movie Having Runtime >= 180 Minutes
+In [ ]:	
+data[data['Runtime (Minutes)']>=180]['Title']
+10. In Which Year There Was The Highest Voting?
+In [ ]:	
+sns.barplot(x='Year',y='Votes',data=data)
+plt.title("Votes By Year")
+plt.show()
+11. In Which Year There Was The Highest Revenue?
+In [ ]:	
+sns.barplot(x='Year',y='Revenue (Millions)',data=data)
+plt.title("Revenue By Year")
+plt.show()
+12. Find The Average Rating For Each Director
+In [ ]:	
+data.groupby('Director')['Rating'].mean().sort_values(ascending=False)
+13. Display Top 10 Lengthy Movies Title
+In [ ]:	
+le =data.nlargest(10,'Runtime (Minutes)')[['Title','Runtime (Minutes)']]. \
+set_index('Title')
+In [ ]:	
+sns.barplot(le['Runtime (Minutes)'],y=le.index)
+plt.title('Top 5 Lengtly Movies')
+plt.show()
+14. Display Number of Movies Per Year
+In [ ]:	
+sns.countplot(x='Year',data=data)
+plt.title("Number of Movies Per Year")
+15. Find Most Popular Movie Title (Higest Revenue)
+In [ ]:	
+data.columns
+In [ ]:	
+data[data['Revenue (Millions)'].max() == data['Revenue (Millions)']]['Title']
+16. Display Top 10 Highest Rated Movie Titles And its Directors
+In [ ]:	
+top_10=data.nlargest(10,'Rating')[['Title','Rating','Director']].set_index('Title')
+In [ ]:	
+top_10
+In [ ]:	
+sns.barplot(top_10['Rating'],top_10.index)
+plt.title("Display Top 10 Highest Rated Movie Titles")
+17. Display Top 10 Highest Revenue Movie Titles
+In [ ]:	
+data.columns
+In [ ]:	
+data.sort_values(by='Revenue (Millions)',ascending=False).head(10)
+In [ ]:	
+top_10 = data.nlargest(10,'Revenue (Millions)')[['Title','Director','Revenue (Millions)']].set_index('Title')
+In [ ]:	
+sns.barplot(top_10['Revenue (Millions)'],top_10.index)
+plt.title("Display Top 10 Highest Revenue Movie Titles")
+plt.show()
+18. Find Average Rating of Movies Year-wise
+In [ ]:	
+data.columns
+In [ ]:	
+data1=data.groupby('Year')['Year','Rating'].mean().\
+sort_values(by='Rating',ascending=False).set_index('Year')
+In [ ]:	
+data1
+In [ ]:	
+plt.figure(figsize=(10,5))
+sns.barplot(data1.index,data1['Rating'])
+plt.show()
+19. Does Rating Affect The Revenue?
+In [ ]:	
+sns.scatterplot(x='Rating',y='Revenue (Millions)',data=data)
+Answer : Yes
+20. Classify Movies Based on Ratings [Good,Better and Best]
+In [ ]:	
+data.columns
+In [ ]:	
+def rating(rating):
+    if rating>=7.0:
+        return 'Excellent'
+    elif rating>=6.0:
+        return 'Good'
+    else:
+        return 'Average'
+In [ ]:	
+data['rating_cat']=data['Rating'].apply(rating)
+In [ ]:	
+data.head(1)
+21. Count Number of Action Movies
+In [ ]:	
+list1=[]
+for value in data['Genre']:
+    list1.append(value.split(','))
+In [ ]:	
+data['temp']=list1
+In [ ]:	
+genre=input("Enter Genre you want to count : ").title()
+count=0
+for value in data['temp']:
+    if genre in value:
+        count=count+1
+print("Total Count is",count)
+OR
+In [ ]:	
+len(data[data['Genre'].str.contains('action',case=False)])
